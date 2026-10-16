@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打工神器 - Taiwan Part-Time Manager</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Fredoka & Inter & Noto Sans TC) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        pop: ['"Fredoka"', 'sans-serif'],
+                    },
+                    colors: {
+                        bubblegum: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        },
+                        taiwanteal: {
+                            50: '#f0fdfa',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #f0fdfa 100%);
+            min-height: 100vh;
+        }
+        .pop-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Fever Mode & Garland Animation */
+        @keyframes garlandWave {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(3px) rotate(1deg); }
+        }
+        .animate-garland {
+            animation: garlandWave 3s ease-in-out infinite;
+        }
+        @keyframes feverGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.25), 0 0 40px rgba(20, 184, 166, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.4), 0 0 50px rgba(244, 63, 94, 0.3); }
+        }
+        .fever-card-active {
+            animation: feverGlow 2.5s infinite alternate;
+            border-color: #f59e0b !important;
+            background: linear-gradient(135deg, #ffffff 0%, #fffbebe6 50%, #fef2f2e6 100%) !important;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            border-radius: 2px;
+            animation: confettiFall 2.5s ease-out infinite;
+            pointer-events: none;
+        }
+
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-700 antialiased pb-12">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-rose-100 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="bg-gradient-to-r from-rose-500 to-teal-500 text-white p-2.5 rounded-2xl shadow-md text-xl pop-font flex items-center justify-center w-10 h-10">🇹🇼</span>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-800 pop-font tracking-wide flex items-center gap-1">
+                        打工神器 <span class="text-xs bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-sans">Taiwan Vibe</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">超好用的打工排班與薪資計算器</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex bg-slate-100 p-1 rounded-2xl space-x-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 md:px-4 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 bg-white text-rose-600 shadow-sm">
+                    <i class="fa-solid fa-chart-pie mr-1"></i> 儀表板
+                </button>
+                <button onclick="switchTab('calendar')" id="nav-calendar" class="px-3 md:px-4 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 text-slate-600 hover:text-rose-500">
+                    <i class="fa-solid fa-calendar-days mr-1"></i> 排班表
+                </button>
+                <button onclick="switchTab('wishlist')" id="nav-wishlist" class="px-3 md:px-4 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 text-slate-600 hover:text-rose-500">
+                    <i class="fa-solid fa-gift mr-1"></i> 夢想換算
+                </button>
+                <button onclick="switchTab('jobs')" id="nav-jobs" class="px-3 md:px-4 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 text-slate-600 hover:text-rose-500">
+                    <i class="fa-solid fa-briefcase mr-1"></i> 打工設定
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <div id="tab-dashboard" class="space-y-6">
+            
+            <!-- Month Picker & Quick Summary Header -->
+            <div id="dashboard-overview-card" class="bg-white rounded-3xl p-6 shadow-xl shadow-rose-500/5 border border-rose-100 relative overflow-hidden transition-all duration-500">
+                
+                <!-- Garland Decoration (Shown when Goal Achieved) -->
+                <div id="fever-garland-container" class="absolute -top-1 left-0 right-0 hidden pointer-events-none z-20 overflow-hidden animate-garland">
+                    <svg class="w-full h-12 text-amber-400" viewBox="0 0 1000 60" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,5 Q250,35 500,5 Q750,35 1000,5" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 2" fill="none"/>
+                        <!-- Flags -->
+                        <polygon points="40,10 65,45 90,10" fill="#f43f5e" />
+                        <polygon points="140,16 165,50 190,16" fill="#14b8a6" />
+                        <polygon points="240,20 265,52 290,20" fill="#f59e0b" />
+                        <polygon points="340,18 365,50 390,18" fill="#ec4899" />
+                        <polygon points="440,10 465,45 490,10" fill="#8b5cf6" />
+                        <polygon points="540,10 565,45 590,10" fill="#3b82f6" />
+                        <polygon points="640,18 665,50 690,18" fill="#10b981" />
+                        <polygon points="740,20 765,52 790,20" fill="#f59e0b" />
+                        <polygon points="840,16 865,50 890,16" fill="#f43f5e" />
+                        <polygon points="940,8 965,42 990,8" fill="#14b8a6" />
+                    </svg>
+                </div>
+
+                <!-- Confetti Container -->
+                <div id="confetti-container" class="absolute inset-0 pointer-events-none z-10 overflow-hidden hidden"></div>
+
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br from-rose-100 to-teal-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 relative z-10">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-rose-500 uppercase tracking-wider bg-rose-50 px-3 py-1 rounded-full">Monthly Overview</span>
+                            <span id="fever-badge" class="hidden text-xs font-bold text-amber-800 bg-gradient-to-r from-amber-300 to-yellow-400 px-3 py-1 rounded-full shadow-sm pop-font animate-bounce">
+                                🎉 🎉 恭喜目標達成！FEVER MODE!!
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button onclick="changeDashboardMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-chevron-left"></i></button>
+                            <h2 id="dashboard-month-title" class="text-2xl font-bold pop-font text-slate-800">2026年 6月</h2>
+                            <button onclick="changeDashboardMonth(1)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Goal Setting Form in Dashboard Header -->
+                    <div class="bg-teal-50 border border-teal-100 rounded-2xl p-3 flex items-center gap-3">
+                        <div class="text-teal-600 text-xl"><i class="fa-solid fa-bullseye"></i></div>
+                        <div>
+                            <span class="text-xs text-teal-700 font-medium block">本月目標金額 (NT$)</span>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="monthly-goal-input" onchange="updateGoal(this.value)" class="w-28 font-bold text-teal-800 bg-transparent border-b border-teal-300 focus:outline-none focus:border-teal-600 text-lg pop-font" value="20000">
+                                <span class="text-xs text-teal-600">元</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Earnings Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 relative z-10">
+                    <!-- Estimated Total -->
+                    <div id="dash-est-card" class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg shadow-rose-500/20 transition-all duration-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-rose-100 text-xs font-medium uppercase tracking-wider">本月預估總薪資 (含未來排班)</p>
+                                <h3 id="dash-est-salary" class="text-3xl md:text-4xl font-extrabold pop-font mt-1">NT$ 0</h3>
+                            </div>
+                            <span class="bg-white/20 p-2.5 rounded-xl text-white"><i class="fa-solid fa-wallet text-xl"></i></span>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between text-xs text-rose-100 border-t border-white/20 pt-3">
+                            <span>已工作確定金額: <strong id="dash-confirmed-salary" class="text-white">NT$ 0</strong></span>
+                            <span id="dash-work-hours">總工時: 0.0 hrs</span>
+                        </div>
+                    </div>
+
+                    <!-- Last Month Comparison -->
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">與上月同期比較</span>
+                                <span id="dash-compare-badge" class="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-200 text-slate-700">計算中...</span>
+                            </div>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span id="dash-last-month-diff" class="text-2xl font-bold pop-font text-slate-800">NT$ 0</span>
+                                <span id="dash-last-month-text" class="text-xs text-slate-500">比上個月</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-4 border-t border-slate-200 pt-2 flex justify-between">
+                            <span>上月總薪資: <span id="dash-last-month-total" class="font-semibold text-slate-600">NT$ 0</span></span>
+                            <span id="dash-next-payday">最近發薪日: --</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Progress Bar -->
+                <div class="space-y-2 relative z-10">
+                    <div class="flex justify-between text-xs font-medium">
+                        <span class="text-slate-600 flex items-center gap-1"><i class="fa-solid fa-flag-checkered text-rose-500"></i> 目標達成進度</span>
+                        <span id="dash-goal-percent" class="pop-font text-rose-600 font-bold">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                        <div id="dash-goal-bar" class="bg-gradient-to-r from-rose-400 to-teal-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Shift List of Selected Month -->
+            <div class="bg-white rounded-3xl p-6 shadow-xl shadow-rose-500/5 border border-rose-100">
+                <h3 class="font-bold text-base text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-rose-500"></i> 本月排班明細
+                </h3>
+                <div id="dash-shift-list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                    <div class="text-center py-8 text-slate-400 text-sm">本月尚未新增任何排班紀錄，快去排班表點選新增吧！</div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ================= TAB 2: CALENDAR ================= -->
+        <div id="tab-calendar" class="hidden space-y-6">
+            
+            <div class="bg-white rounded-3xl p-6 shadow-xl shadow-rose-500/5 border border-rose-100">
+                <!-- Calendar Controls -->
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <button onclick="changeCalendarMonth(-1)" class="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h2 id="cal-month-title" class="text-2xl font-bold pop-font text-slate-800">2026年 6月</h2>
+                        <button onclick="changeCalendarMonth(1)" class="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <button onclick="jumpToCurrentMonth()" class="text-xs bg-rose-50 text-rose-600 font-medium px-3 py-1.5 rounded-xl hover:bg-rose-100 transition">回到本月</button>
+                </div>
+
+                <!-- Days Header -->
+                <div class="grid grid-cols-7 text-center text-xs font-bold text-slate-400 mb-2">
+                    <span class="text-rose-500">日</span>
+                    <span>一</span>
+                    <span>二</span>
+                    <span>三</span>
+                    <span>四</span>
+                    <span>五</span>
+                    <span class="text-teal-600">六</span>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1.5">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ================= TAB 3: WISHLIST (夢想換算) ================= -->
+        <div id="tab-wishlist" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-xl shadow-rose-500/5 border border-rose-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold pop-font text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-gift text-rose-500"></i> 夢想與小確幸換算機
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">根據本月預估薪資 (<strong id="wishlist-current-salary" class="text-rose-500 pop-font">NT$ 0</strong>)，計算你可以買多少個夢想！</p>
+                    </div>
+                    <button onclick="openWishlistModal()" class="bg-gradient-to-r from-rose-500 to-teal-500 text-white px-4 py-2.5 rounded-2xl text-xs font-bold shadow-lg shadow-rose-500/20 hover:opacity-95 transition flex items-center gap-2 shrink-0">
+                        <i class="fa-solid fa-plus"></i> 新增自訂換算項目
+                    </button>
+                </div>
+
+                <!-- Preset Quick Buttons -->
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 mb-6">
+                    <span class="text-xs font-semibold text-slate-500 block mb-2"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> 快速加入常用預設項目：</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="addPresetWish('🧋 珍珠奶茶', 65, '🧋')" class="text-xs bg-white hover:bg-rose-50 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-xl font-medium transition shadow-sm">+ 🧋 珍珠奶茶 (65元)</button>
+                        <button onclick="addPresetWish('🍗 炸雞排', 90, '🍗')" class="text-xs bg-white hover:bg-rose-50 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-xl font-medium transition shadow-sm">+ 🍗 炸雞排 (90元)</button>
+                        <button onclick="addPresetWish('🎬 電影票', 320, '🎬')" class="text-xs bg-white hover:bg-rose-50 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-xl font-medium transition shadow-sm">+ 🎬 電影票 (320元)</button>
+                        <button onclick="addPresetWish('🎧 AirPods', 4200, '🎧')" class="text-xs bg-white hover:bg-rose-50 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-xl font-medium transition shadow-sm">+ 🎧 AirPods (4,200元)</button>
+                        <button onclick="addPresetWish('✈️ 日本機票', 12000, '✈️')" class="text-xs bg-white hover:bg-rose-50 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-xl font-medium transition shadow-sm">+ ✈️ 日本機票 (12,000元)</button>
+                    </div>
+                </div>
+
+                <!-- Wishlist Grid -->
+                <div id="wishlist-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= TAB 4: JOBS CONFIG ================= -->
+        <div id="tab-jobs" class="hidden space-y-6">
+            
+            <div class="bg-white rounded-3xl p-6 shadow-xl shadow-rose-500/5 border border-rose-100">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold pop-font text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-briefcase text-rose-500"></i> 打工先設定 (支援多打工與自訂倍率)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">依照台灣勞基法或各店規定自訂時薪、加班倍率與保險</p>
+                    </div>
+                    <button onclick="openJobModal()" class="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-2 rounded-2xl text-xs font-bold shadow-lg shadow-rose-500/20 hover:opacity-95 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> 新增打工
+                    </button>
+                </div>
+
+                <!-- Job List Container -->
+                <div id="jobs-list-container" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ================= MODAL: WISHLIST ITEM EDITOR ================= -->
+    <div id="wishlist-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-100 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg pop-font text-slate-800">新增/編輯夢想換算項目</h3>
+                <button onclick="closeWishlistModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <input type="hidden" id="wish-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">選擇圖示 (Emoji)</label>
+                    <input type="text" id="wish-icon" value="🎁" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-xl text-center focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">項目名稱 (你想買什麼？)</label>
+                    <input type="text" id="wish-name" placeholder="例如：Switch Oled 遊戲機" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">單價 (NT$)</label>
+                    <input type="number" id="wish-price" placeholder="例如：10480" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button onclick="closeWishlistModal()" class="px-4 py-2 rounded-2xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">取消</button>
+                    <button onclick="saveWishlistItem()" class="px-5 py-2 rounded-2xl text-xs font-semibold bg-rose-500 text-white hover:bg-rose-600 shadow-md shadow-rose-500/20 transition">儲存項目</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: JOB EDITOR ================= -->
+    <div id="job-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-rose-100 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="job-modal-title" class="font-bold text-lg pop-font text-slate-800">新增打工地點</h3>
+                <button onclick="closeJobModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <input type="hidden" id="edit-job-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">打工名稱 / 店名</label>
+                    <input type="text" id="job-name" placeholder="例如：鼎泰豐 信義店" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">基本時薪 (NT$)</label>
+                        <input type="number" id="job-hourly-wage" value="196" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">發薪日 (每月幾號)</label>
+                        <input type="number" id="job-payday" value="5" min="1" max="31" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">單日交通費津貼 (NT$)</label>
+                        <input type="number" id="job-transport" value="0" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">保險扣除比例 (%) <span class="text-[10px] text-slate-400">勞健保自負額約2%</span></label>
+                        <input type="number" step="0.1" id="job-insurance-rate" value="0" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                </div>
+
+                <!-- Custom Multipliers (User Editable) -->
+                <div class="bg-rose-50/50 border border-rose-100 p-4 rounded-2xl space-y-3">
+                    <h4 class="text-xs font-bold text-rose-600 uppercase tracking-wider"><i class="fa-solid fa-sliders mr-1"></i> 勞基法與特殊時薪倍率自訂</h4>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">加班第1階段倍率 (超過8hr前2hr)</label>
+                            <input type="number" step="0.01" id="job-mult-1" value="1.34" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-rose-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">加班第2階段倍率 (超過10hr)</label>
+                            <input type="number" step="0.01" id="job-mult-2" value="1.67" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-rose-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">國定假日 / 休息日倍率</label>
+                            <input type="number" step="0.01" id="job-mult-holiday" value="2.0" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-rose-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">深夜津貼加給 (每小時額外NT$)</label>
+                            <input type="number" id="job-night-extra" value="0" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-rose-500" placeholder="例如：+30元">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button onclick="closeJobModal()" class="px-4 py-2 rounded-2xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">取消</button>
+                    <button onclick="saveJob()" class="px-5 py-2 rounded-2xl text-xs font-semibold bg-rose-500 text-white hover:bg-rose-600 shadow-md shadow-rose-500/20 transition">儲存打工設定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: SHIFT EDITOR ================= -->
+    <div id="shift-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-100 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-date-title" class="font-bold text-lg pop-font text-slate-800">編輯排班</h3>
+                <button onclick="closeShiftModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">選擇打工地點</label>
+                    <select id="shift-job-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-500">
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">上班時間</label>
+                        <input type="time" id="shift-start-time" value="09:00" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">下班時間</label>
+                        <input type="time" id="shift-end-time" value="18:00" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">休息時間 (分鐘)</label>
+                        <input type="number" id="shift-break-mins" value="60" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div class="flex items-center pt-5">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                            <input type="checkbox" id="shift-is-holiday" class="w-4 h-4 text-rose-500 rounded focus:ring-rose-400">
+                            國定假日 / 雙薪日
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <button id="btn-delete-shift" onclick="deleteCurrentShift()" class="px-4 py-2 rounded-2xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition hidden">刪除此班表</button>
+                    <div class="flex items-center gap-2 ml-auto">
+                        <button onclick="closeShiftModal()" class="px-4 py-2 rounded-2xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">取消</button>
+                        <button onclick="saveShift()" class="px-5 py-2 rounded-2xl text-xs font-semibold bg-rose-500 text-white hover:bg-rose-600 shadow-md shadow-rose-500/20 transition">儲存排班</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        let appData = {
+            jobs: [
+                {
+                    id: 'job_1',
+                    name: '我的第一個打工',
+                    hourlyWage: 196,
+                    payday: 5,
+                    transport: 0,
+                    insuranceRate: 0,
+                    mult1: 1.34,
+                    mult2: 1.67,
+                    multHoliday: 2.0,
+                    nightExtra: 0
+                }
+            ],
+            shifts: {}, 
+            wishlist: [],
+            monthlyGoal: 20000
+        };
+
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+        let dashboardYear = currentYear;
+        let dashboardMonth = currentMonth;
+        let editingDateStr = null;
+
+        // Initialize App
+        window.onload = function() {
+            loadData();
+            document.getElementById('monthly-goal-input').value = appData.monthlyGoal || 20000;
+            renderAll();
+        };
+
+        // LocalStorage Load & Save
+        function saveData() {
+            localStorage.setItem('workvibe_taiwan_data', JSON.stringify(appData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('workvibe_taiwan_data');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    appData = { ...appData, ...parsed };
+                    if (!appData.wishlist) {
+                        appData.wishlist = [];
+                    }
+                } catch(e) {
+                    console.error("Failed to load local storage data", e);
+                }
+            }
+        }
+
+        // Tab Switcher
+        function switchTab(tabId) {
+            ['dashboard', 'calendar', 'wishlist', 'jobs'].forEach(id => {
+                document.getElementById('tab-' + id).classList.add('hidden');
+                document.getElementById('nav-' + id).classList.remove('bg-white', 'text-rose-600', 'shadow-sm');
+                document.getElementById('nav-' + id).classList.add('text-slate-600');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('nav-' + tabId).classList.add('bg-white', 'text-rose-600', 'shadow-sm');
+            document.getElementById('nav-' + tabId).classList.remove('text-slate-600');
+
+            renderAll();
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderCalendar();
+            renderWishlist();
+            renderJobsList();
+        }
+
+        // ... existing salary calculation functions ...
+        function calculateShiftEarnings(shift, dateStr) {
+            const job = appData.jobs.find(j => j.id === shift.jobId);
+            if (!job) return { gross: 0, net: 0, hours: 0, transport: 0 };
+
+            const [startH, startM] = shift.startTime.split(':').map(Number);
+            const [endH, endM] = shift.endMins ? [0,0] : shift.endTime.split(':').map(Number);
+            
+            let startMinutes = startH * 60 + startM;
+            let endMinutes = endH * 60 + endM;
+            if (endMinutes <= startMinutes) endMinutes += 24 * 60;
+
+            let totalMinutes = (endMinutes - startMinutes) - (shift.breakMins || 0);
+            if (totalMinutes < 0) totalMinutes = 0;
+            let totalHours = totalMinutes / 60;
+
+            let gross = 0;
+            let baseWage = job.hourlyWage;
+            let multH = shift.isHoliday ? (job.multHoliday || 2.0) : 1.0;
+
+            if (shift.isHoliday) {
+                gross = totalHours * baseWage * multH;
+            } else {
+                let remainingHours = totalHours;
+                let normalHours = Math.min(8, remainingHours);
+                gross += normalHours * baseWage;
+                remainingHours -= normalHours;
+
+                if (remainingHours > 0) {
+                    let firstTierOver = Math.min(2, remainingHours);
+                    gross += firstTierOver * baseWage * (job.mult1 || 1.34);
+                    remainingHours -= firstTierOver;
+                }
+
+                if (remainingHours > 0) {
+                    let secondTierOver = remainingHours;
+                    gross += secondTierOver * baseWage * (job.mult2 || 1.67);
+                }
+            }
+
+            if (job.nightExtra && job.nightExtra > 0) {
+                gross += totalHours * (job.nightExtra * 0.2);
+            }
+
+            let transport = job.transport || 0;
+            let subtotal = gross + transport;
+            let insuranceDeduction = subtotal * ((job.insuranceRate || 0) / 100);
+            let net = subtotal - insuranceDeduction;
+
+            return {
+                gross: Math.round(subtotal),
+                net: Math.round(net),
+                hours: parseFloat(totalHours.toFixed(1)),
+                transport: transport
+            };
+        }
+
+        function getMonthlyStats(year, month) {
+            let confirmedTotal = 0;
+            let estimatedTotal = 0;
+            let totalHours = 0;
+            let shiftsList = [];
+
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            Object.keys(appData.shifts).forEach(dateStr => {
+                const [y, m, d] = dateStr.split('-').map(Number);
+                if (y === year && (m - 1) === month) {
+                    const shift = appData.shifts[dateStr];
+                    const job = appData.jobs.find(j => j.id === shift.jobId);
+                    const earnings = calculateShiftEarnings(shift, dateStr);
+
+                    shiftsList.push({
+                        dateStr,
+                        shift,
+                        job,
+                        earnings
+                    });
+
+                    totalHours += earnings.hours;
+                    if (dateStr <= todayStr) {
+                        confirmedTotal += earnings.net;
+                    }
+                    estimatedTotal += earnings.net;
+                }
+            });
+
+            shiftsList.sort((a, b) => b.dateStr.localeCompare(a.dateStr));
+
+            return { confirmedTotal, estimatedTotal, totalHours, shiftsList };
+        }
+
+        // ================= DASHBOARD RENDER =================
+        function changeDashboardMonth(direction) {
+            dashboardMonth += direction;
+            if (dashboardMonth > 11) {
+                dashboardMonth = 0;
+                dashboardYear++;
+            } else if (dashboardMonth < 0) {
+                dashboardMonth = 11;
+                dashboardYear--;
+            }
+            renderDashboard();
+        }
+
+        function updateGoal(val) {
+            appData.monthlyGoal = parseFloat(val) || 0;
+            saveData();
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            document.getElementById('dashboard-month-title').innerText = `${dashboardYear}年 ${dashboardMonth + 1}月`;
+
+            const stats = getMonthlyStats(dashboardYear, dashboardMonth);
+
+            document.getElementById('dash-est-salary').innerText = `NT$ ${stats.estimatedTotal.toLocaleString()}`;
+            document.getElementById('dash-confirmed-salary').innerText = `NT$ ${stats.confirmedTotal.toLocaleString()}`;
+            document.getElementById('dash-work-hours').innerText = `總工時: ${stats.totalHours} hrs`;
+
+            const goal = appData.monthlyGoal || 1;
+            const rawPercent = (stats.estimatedTotal / goal) * 100;
+            const percent = Math.min(100, Math.round(rawPercent));
+            document.getElementById('dash-goal-percent').innerText = `${percent}%`;
+            document.getElementById('dash-goal-bar').style.width = `${percent}%`;
+
+            // FEVER MODE Check (100% or above achieved)
+            const overviewCard = document.getElementById('dashboard-overview-card');
+            const garland = document.getElementById('fever-garland-container');
+            const feverBadge = document.getElementById('fever-badge');
+            const confettiBox = document.getElementById('confetti-container');
+            const estCard = document.getElementById('dash-est-card');
+
+            if (stats.estimatedTotal > 0 && stats.estimatedTotal >= goal) {
+                // Activate Fever Mode
+                overviewCard.classList.add('fever-card-active');
+                garland.classList.remove('hidden');
+                feverBadge.classList.remove('hidden');
+                confettiBox.classList.remove('hidden');
+                
+                estCard.className = "bg-gradient-to-br from-amber-500 via-rose-500 to-amber-600 rounded-2xl p-5 text-white shadow-xl shadow-amber-500/30 transition-all duration-300";
+                
+                // Spawn Confetti Particles if empty
+                if (confettiBox.children.length === 0) {
+                    const colors = ['#f43f5e', '#14b8a6', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'];
+                    for (let i = 0; i < 25; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'confetti-piece';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.top = (Math.random() * -20) + 'px';
+                        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        particle.style.animationDelay = (Math.random() * 2) + 's';
+                        particle.style.animationDuration = (1.8 + Math.random() * 1.5) + 's';
+                        confettiBox.appendChild(particle);
+                    }
+                }
+            } else {
+                // Deactivate Fever Mode
+                overviewCard.classList.remove('fever-card-active');
+                garland.classList.add('hidden');
+                feverBadge.classList.add('hidden');
+                confettiBox.classList.add('hidden');
+                confettiBox.innerHTML = '';
+                
+                estCard.className = "bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg shadow-rose-500/20 transition-all duration-300";
+            }
+
+            let lastY = dashboardYear;
+            let lastM = dashboardMonth - 1;
+            if (lastM < 0) {
+                lastM = 11;
+                lastY--;
+            }
+            const lastStats = getMonthlyStats(lastY, lastM);
+            const diff = stats.estimatedTotal - lastStats.estimatedTotal;
+            
+            document.getElementById('dash-last-month-total').innerText = `NT$ ${lastStats.estimatedTotal.toLocaleString()}`;
+            const diffEl = document.getElementById('dash-last-month-diff');
+            const badgeEl = document.getElementById('dash-compare-badge');
+            
+            if (diff >= 0) {
+                diffEl.innerText = `+NT$ ${diff.toLocaleString()}`;
+                badgeEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700';
+                badgeEl.innerText = '比上月增加 🚀';
+            } else {
+                diffEl.innerText = `-NT$ ${Math.abs(diff).toLocaleString()}`;
+                badgeEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-medium bg-rose-100 text-rose-700';
+                badgeEl.innerText = '比上月減少';
+            }
+
+            let nearestPaydayStr = '尚未設定發薪日';
+            if (appData.jobs.length > 0) {
+                const payday = appData.jobs[0].payday || 5;
+                nearestPaydayStr = `${dashboardYear}年 ${dashboardMonth + 1}月 ${payday}日`;
+            }
+            document.getElementById('dash-next-payday').innerText = `最近發薪日: ${nearestPaydayStr}`;
+
+            const listContainer = document.getElementById('dash-shift-list');
+            if (stats.shiftsList.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">本月尚未新增任何排班紀錄，快去排班表點選新增吧！</div>`;
+            } else {
+                listContainer.innerHTML = stats.shiftsList.map(item => `
+                    <div class="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-rose-50/40 rounded-2xl transition border border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-rose-500 pop-font text-sm border border-rose-100">
+                                ${item.dateStr.split('-')[2]}日
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">${item.job ? item.job.name : '已刪除的打工'}</h4>
+                                <p class="text-xs text-slate-400">${item.shift.startTime} - ${item.shift.endTime} (${item.earnings.hours} hrs) ${item.shift.isHoliday ? '✨ 國定假日' : ''}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-sm pop-font text-rose-600">NT$ ${item.earnings.net.toLocaleString()}</span>
+                            <span class="text-[10px] text-slate-400 block">實領金額</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+
+        // ================= WISHLIST / DREAM CONVERTER RENDER =================
+        function renderWishlist() {
+            const currentStats = getMonthlyStats(dashboardYear, dashboardMonth);
+            const currentSalary = currentStats.estimatedTotal;
+            document.getElementById('wishlist-current-salary').innerText = `NT$ ${currentSalary.toLocaleString()}`;
+
+            const grid = document.getElementById('wishlist-grid');
+            if (!appData.wishlist || appData.wishlist.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-12 text-slate-400 text-sm">目前沒有任何換算項目，點擊上方按鈕新增一個吧！</div>`;
+                return;
+            }
+
+            grid.innerHTML = appData.wishlist.map(item => {
+                const count = item.price > 0 ? Math.floor(currentSalary / item.price) : 0;
+                const percent = item.price > 0 ? Math.min(100, Math.round((currentSalary / item.price) * 100)) : 0;
+                const isAffordable = currentSalary >= item.price;
+
+                return `
+                    <div class="bg-gradient-to-br from-slate-50 to-rose-50/30 border border-slate-200/80 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-3xl bg-white p-2 rounded-2xl shadow-sm border border-slate-100">${item.icon || '🎁'}</span>
+                                    <div>
+                                        <h3 class="font-bold text-base text-slate-800 pop-font">${item.name}</h3>
+                                        <p class="text-xs text-slate-400">單價: <strong class="text-slate-600">NT$ ${item.price.toLocaleString()}</strong></p>
+                                    </div>
+                                </div>
+                                <button onclick="deleteWishlistItem('${item.id}')" class="text-slate-300 hover:text-rose-500 transition p-1 text-sm"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+
+                            <div class="my-4 bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-rose-100/60 flex items-center justify-between">
+                                <div>
+                                    <span class="text-[11px] text-slate-400 block font-medium uppercase tracking-wider">本月薪資可購買</span>
+                                    <span class="text-2xl font-extrabold pop-font ${isAffordable ? 'text-teal-600' : 'text-slate-700'}">
+                                        ${count > 0 ? count : 0} <span class="text-xs font-normal text-slate-500">個 / 份</span>
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[11px] text-slate-400 block font-medium uppercase tracking-wider">進度 / 達成度</span>
+                                    <span class="text-lg font-bold pop-font ${percent >= 100 ? 'text-teal-600' : 'text-rose-500'}">${percent}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="space-y-1">
+                            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-rose-400 to-teal-400 h-full rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                            </div>
+                            <p class="text-[10px] text-right text-slate-400">
+                                ${isAffordable ? '🎉 本月薪資已完全負擔得起！' : `還差 NT$ ${(item.price - currentSalary).toLocaleString()} 元達成`}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openWishlistModal() {
+            document.getElementById('wish-id').value = '';
+            document.getElementById('wish-name').value = '';
+            document.getElementById('wish-price').value = '';
+            document.getElementById('wish-icon').value = '🎁';
+            document.getElementById('wishlist-modal').classList.remove('hidden');
+        }
+
+        function closeWishlistModal() {
+            document.getElementById('wishlist-modal').classList.add('hidden');
+        }
+
+        function saveWishlistItem() {
+            const name = document.getElementById('wish-name').value.trim();
+            const price = parseFloat(document.getElementById('wish-price').value);
+            const icon = document.getElementById('wish-icon').value.trim() || '🎁';
+
+            if (!name || isNaN(price) || price <= 0) {
+                alert('請輸入有效的項目名稱與金額！');
+                return;
+            }
+
+            const newItem = {
+                id: 'wish_' + Date.now(),
+                name,
+                price,
+                icon
+            };
+
+            appData.wishlist.push(newItem);
+            saveData();
+            closeWishlistModal();
+            renderWishlist();
+        }
+
+        function addPresetWish(name, price, icon) {
+            // Check if already exists
+            const exists = appData.wishlist.some(w => w.name === name);
+            if (exists) {
+                alert(`「${name}」已經在你的夢想清單中了！`);
+                return;
+            }
+
+            appData.wishlist.push({
+                id: 'wish_' + Date.now(),
+                name,
+                price,
+                icon
+            });
+            saveData();
+            renderWishlist();
+        }
+
+        function deleteWishlistItem(id) {
+            appData.wishlist = appData.wishlist.filter(w => w.id !== id);
+            saveData();
+            renderWishlist();
+        }
+
+
+        // ... existing calendar and job logic ...
+        function changeCalendarMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function jumpToCurrentMonth() {
+            currentYear = new Date().getFullYear();
+            currentMonth = new Date().getMonth();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            document.getElementById('cal-month-title').innerText = `${currentYear}年 ${currentMonth + 1}月`;
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'h-24 bg-slate-50/50 rounded-2xl opacity-30';
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const monthFormatted = String(currentMonth + 1).padStart(2, '0');
+                const dayFormatted = String(day).padStart(2, '0');
+                const dateStr = `${currentYear}-${monthFormatted}-${dayFormatted}`;
+                
+                const shift = appData.shifts[dateStr];
+                const isToday = (dateStr === todayStr);
+
+                const cell = document.createElement('div');
+                cell.className = `h-24 bg-white border ${isToday ? 'border-rose-400 ring-2 ring-rose-100' : 'border-slate-100'} rounded-2xl p-2 flex flex-col justify-between hover:border-rose-300 transition cursor-pointer relative overflow-hidden`;
+                cell.onclick = () => openShiftModal(dateStr);
+
+                let contentHtml = `<div class="flex justify-between items-center"><span class="font-bold text-xs pop-font ${isToday ? 'bg-rose-500 text-white w-6 h-6 rounded-full flex items-center justify-center' : 'text-slate-700'}">${day}</span>`;
+                if (shift) {
+                    contentHtml += `<span class="w-2 h-2 rounded-full bg-rose-500"></span>`;
+                }
+                contentHtml += `</div>`;
+
+                if (shift) {
+                    const job = appData.jobs.find(j => j.id === shift.jobId);
+                    const earnings = calculateShiftEarnings(shift, dateStr);
+                    contentHtml += `
+                        <div class="mt-1 bg-rose-50/80 rounded-xl p-1.5 text-[10px] border border-rose-100/60">
+                            <p class="font-bold text-rose-700 truncate">${job ? job.name : '打工'}</p>
+                            <p class="text-slate-500 font-semibold text-[10px]">NT$ ${earnings.net.toLocaleString()}</p>
+                        </div>
+                    `;
+                } else {
+                    contentHtml += `<div class="flex-grow flex items-center justify-center text-slate-300 text-xs opacity-0 hover:opacity-100 transition"><i class="fa-solid fa-plus"></i></div>`;
+                }
+
+                cell.innerHTML = contentHtml;
+                grid.appendChild(cell);
+            }
+        }
+
+        // ================= SHIFT MODAL CONTROLS =================
+        function openShiftModal(dateStr) {
+            if (appData.jobs.length === 0) {
+                alert('請先至「打工設定」新增知識一個打工地點！');
+                switchTab('jobs');
+                return;
+            }
+
+            editingDateStr = dateStr;
+            document.getElementById('modal-date-title').innerText = `編輯排班 - ${dateStr}`;
+
+            const select = document.getElementById('shift-job-select');
+            select.innerHTML = appData.jobs.map(j => `<option value="${j.id}">${j.name} (時薪 $${j.hourlyWage})</option>`).join('');
+
+            const existing = appData.shifts[dateStr];
+            if (existing) {
+                select.value = existing.jobId;
+                document.getElementById('shift-start-time').value = existing.startTime || '09:00';
+                document.getElementById('shift-end-time').value = existing.endTime || '18:00';
+                document.getElementById('shift-break-mins').value = existing.breakMins ?? 60;
+                document.getElementById('shift-is-holiday').checked = existing.isHoliday || false;
+                document.getElementById('btn-delete-shift').classList.remove('hidden');
+            } else {
+                document.getElementById('shift-start-time').value = '09:00';
+                document.getElementById('shift-end-time').value = '18:00';
+                document.getElementById('shift-break-mins').value = '60';
+                document.getElementById('shift-is-holiday').checked = false;
+                document.getElementById('btn-delete-shift').classList.add('hidden');
+            }
+
+            document.getElementById('shift-modal').classList.remove('hidden');
+        }
+
+        function closeShiftModal() {
+            document.getElementById('shift-modal').classList.add('hidden');
+            editingDateStr = null;
+        }
+
+        function saveShift() {
+            if (!editingDateStr) return;
+
+            const jobId = document.getElementById('shift-job-select').value;
+            const startTime = document.getElementById('shift-start-time').value;
+            const endTime = document.getElementById('shift-end-time').value;
+            const breakMins = parseInt(document.getElementById('shift-break-mins').value) || 0;
+            const isHoliday = document.getElementById('shift-is-holiday').checked;
+
+            appData.shifts[editingDateStr] = {
+                jobId,
+                startTime,
+                endTime,
+                breakMins,
+                isHoliday
+            };
+
+            saveData();
+            closeShiftModal();
+            renderAll();
+        }
+
+        function deleteCurrentShift() {
+            if (!editingDateStr) return;
+            delete appData.shifts[editingDateStr];
+            saveData();
+            closeShiftModal();
+            renderAll();
+        }
+
+        // ================= JOBS CONFIG CONTROLS =================
+        function renderJobsList() {
+            const container = document.getElementById('jobs-list-container');
+            if (appData.jobs.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">目前沒有任何打工設定，請點擊上方按鈕新增。</div>`;
+                return;
+            }
+
+            container.innerHTML = appData.jobs.map(job => `
+                <div class="bg-slate-50 border border-slate-200/80 rounded-3xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-base text-slate-800 pop-font">${job.name}</h3>
+                            <span class="text-xs bg-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full font-medium">時薪 NT$ ${job.hourlyWage}</span>
+                        </div>
+                        <p class="text-xs text-slate-500">
+                            發薪日: 每月 <span class="font-semibold text-slate-700">${job.payday}號</span> | 
+                            交通津貼: <span class="font-semibold text-slate-700">$${job.transport}/天</span> | 
+                            保險扣除: <span class="font-semibold text-slate-700">${job.insuranceRate}%</span>
+                        </p>
+                        <p class="text-[11px] text-teal-600 font-medium">
+                            ✨ 自訂倍率: 8hr後1階 ${job.mult1}x / 2階 ${job.mult2}x / 國定假日 ${job.multHoliday}x / 深夜+${job.nightExtra}元
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="editJob('${job.id}')" class="px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-sm">編輯</button>
+                        <button onclick="deleteJob('${job.id}')" class="px-3.5 py-2 rounded-2xl text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition">刪除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openJobModal(jobId = null) {
+            document.getElementById('job-modal').classList.remove('hidden');
+            if (jobId) {
+                const job = appData.jobs.find(j => j.id === jobId);
+                if (job) {
+                    document.getElementById('job-modal-title').innerText = '編輯打工設定';
+                    document.getElementById('edit-job-id').value = job.id;
+                    document.getElementById('job-name').value = job.name;
+                    document.getElementById('job-hourly-wage').value = job.hourlyWage;
+                    document.getElementById('job-payday').value = job.payday;
+                    document.getElementById('job-transport').value = job.transport;
+                    document.getElementById('job-insurance-rate').value = job.insuranceRate;
+                    document.getElementById('job-mult-1').value = job.mult1;
+                    document.getElementById('job-mult-2').value = job.mult2;
+                    document.getElementById('job-mult-holiday').value = job.multHoliday;
+                    document.getElementById('job-night-extra').value = job.nightExtra || 0;
+                }
+            } else {
+                document.getElementById('job-modal-title').innerText = '新增打工地點';
+                document.getElementById('edit-job-id').value = '';
+                document.getElementById('job-name').value = '';
+                document.getElementById('job-hourly-wage').value = 196;
+                document.getElementById('job-payday').value = 5;
+                document.getElementById('job-transport').value = 0;
+                document.getElementById('job-insurance-rate').value = 0;
+                document.getElementById('job-mult-1').value = 1.34;
+                document.getElementById('job-mult-2').value = 1.67;
+                document.getElementById('job-mult-holiday').value = 2.0;
+                document.getElementById('job-night-extra').value = 0;
+            }
+        }
+
+        function closeJobModal() {
+            document.getElementById('job-modal').classList.add('hidden');
+        }
+
+        function editJob(jobId) {
+            openJobModal(jobId);
+        }
+
+        function saveJob() {
+            const id = document.getElementById('edit-job-id').value || ('job_' + Date.now());
+            const name = document.getElementById('job-name').value.trim() || '未命名打工';
+            const hourlyWage = parseFloat(document.getElementById('job-hourly-wage').value) || 196;
+            const payday = parseInt(document.getElementById('job-payday').value) || 5;
+            const transport = parseFloat(document.getElementById('job-transport').value) || 0;
+            const insuranceRate = parseFloat(document.getElementById('job-insurance-rate').value) || 0;
+            const mult1 = parseFloat(document.getElementById('job-mult-1').value) || 1.34;
+            const mult2 = parseFloat(document.getElementById('job-mult-2').value) || 1.67;
+            const multHoliday = parseFloat(document.getElementById('job-mult-holiday').value) || 2.0;
+            const nightExtra = parseFloat(document.getElementById('job-night-extra').value) || 0;
+
+            const jobData = {
+                id, name, hourlyWage, payday, transport, insuranceRate, mult1, mult2, multHoliday, nightExtra
+            };
+
+            const index = appData.jobs.findIndex(j => j.id === id);
+            if (index >= 0) {
+                appData.jobs[index] = jobData;
+            } else {
+                appData.jobs.push(jobData);
+            }
+
+            saveData();
+            closeJobModal();
+            renderAll();
+        }
+
+        function deleteJob(jobId) {
+            if (appData.jobs.length <= 1) {
+                alert('至少需要保留一個打工設定！');
+                return;
+            }
+            if (confirm('確定要刪除這個打工設定嗎？相關的排班計算可能會受到影響。')) {
+                appData.jobs = appData.jobs.filter(j => j.id !== jobId);
+                saveData();
+                renderAll();
+            }
+        }
+    </script>
+</body>
+</html>
